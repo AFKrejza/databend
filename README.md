@@ -1,3 +1,34 @@
 2026-10-19
 
+# Databend
+
 Databending app for editing images as though they are audio.
+
+You import an image. The app turns its pixel bytes into audio samples (μ-law by default, like the old Audacity "Import Raw" trick) and runs audio effects on them, such as echo, wah, distortion and reverb. It writes the result straight back into the image, so you see changes live. A waveform panel at the bottom shows the "audio" you are bending.
+
+The original workflow was GIMP → `.tif` → Audacity (raw, μ-law) → effects → raw export. It often produced files that wouldn't open, because the effects also hit the file header. This app only feeds pixel bytes through the effects and always writes a fresh PNG, so the output can't be corrupted.
+
+## Stack
+- Vite + React + TypeScript, browser-only (no server)
+- Web Audio API (`OfflineAudioContext`) for the DSP effects, plus small hand-written JS effects
+- zustand for state, Vitest for tests
+
+## Running (once scaffolded)
+```
+npm install
+npm run dev     # open the printed localhost URL
+npm test
+```
+
+## Docs
+| File | What it covers |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | Big picture: data flow, modules, state |
+| [docs/codec.md](docs/codec.md) | Bytes ⇄ samples (μ-law, A-law, 8/16-bit PCM) |
+| [docs/stream-and-selection.md](docs/stream-and-selection.md) | How pixels become a sample stream; channel layout, scan order, selections |
+| [docs/effects.md](docs/effects.md) | Effect interface, registry, and every v1 effect |
+| [docs/render-engine.md](docs/render-engine.md) | Render pipeline, live preview, proxy, bake, undo |
+| [docs/ui.md](docs/ui.md) | Screen layout, components, controls, shortcuts |
+| [docs/waveform.md](docs/waveform.md) | The bottom waveform panel |
+| [docs/testing.md](docs/testing.md) | Unit tests, browser tests, manual checklist |
+| [docs/roadmap.md](docs/roadmap.md) | Milestones and progress checklist |
