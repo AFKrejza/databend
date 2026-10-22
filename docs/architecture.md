@@ -28,20 +28,34 @@ Key rules:
 - **Output length always equals input length.** Effect tails are cut off and short outputs are zero-padded. Bytes never shift position.
 - **Non-destructive.** The base image is never mutated. Every render starts from it, and only "Bake" replaces it.
 
-## Modules (`src/`)
+## Two front ends, one core
+The app is used two ways: the **web GUI** and a **CLI** ([cli.md](cli.md)). Both drive the same platform-independent core.
+```
+            ┌──────────── src/web/ ────────────┐   ┌────── src/cli/ ──────┐
+            │ React UI + zustand store         │   │ args, batch, recipes │
+            │ image I/O: canvas                │   │ image I/O: sharp     │
+            │ audio: window.OfflineAudioContext│   │ audio: node-web-audio-api
+            └───────────────┬──────────────────┘   └──────────┬───────────┘
+                            └──────────► src/core/ ◄──────────┘
+                     codec · stream · effects · engine · waveform · recipe
+```
+
+## Modules
 | Folder | Responsibility | Depends on |
 |---|---|---|
-| `codec/` | Pure functions: `decode(bytes, enc) → Float32Array`, `encode(samples, enc) → Uint8Array` | — |
-| `stream/` | Builds the byte-offset table for a selection/layout/scan, then extracts and inserts bytes. Maps pixels ⇄ sample indices. | — |
-| `effects/` | Effect definitions plus the registry. Each effect is one file. | — |
-| `engine/` | Orchestrates a render: stream → codec → chain → codec → stream. Handles debounce, cancellation and the proxy. | codec, stream, effects |
-| `waveform/` | Peak computation and coordinate maths for the waveform panel | — |
-| `state/` | zustand store: image, settings, selection, chain, history, render results | engine |
-| `ui/` | React components | state |
+| `core/codec/` | Pure functions: `decode(bytes, enc) → Float32Array`, `encode(samples, enc) → Uint8Array` | — |
+| `core/stream/` | Builds the byte-offset table for a selection/layout/scan, then extracts and inserts bytes. Maps pixels ⇄ sample indices. | — |
+| `core/effects/` | Effect definitions plus the registry. Each effect is one file. | — |
+| `core/engine/` | `render(request, platform)`: stream → codec → chain → codec → stream | codec, stream, effects |
+| `core/waveform/` | Peak computation and view maths (used by the GUI panel and the CLI's `--waveform`) | — |
+| `core/recipe.ts` | Recipe JSON (settings + selection + chain) parse, validate and serialize. Shared by the GUI's save/load and the CLI. | effects |
+| `web/state/` | zustand store: image, settings, selection, chain, history, render results. Handles debounce, cancellation and the proxy. | core |
+| `web/ui/` | React components | web/state |
+| `cli/` | Argument parsing, file I/O, batch runs | core |
 
-The lower layers (`codec`, `stream`, `effects` JS parts, `waveform`) are plain TypeScript with no DOM or React. That keeps them unit-testable in Node.
+**Rule: `core/` never touches the DOM or Node APIs.** Images are passed as `RasterImage { width, height, data: Uint8ClampedArray }`, which a browser `ImageData` already satisfies. Audio contexts come from an injected `createOfflineContext` function. That keeps the core unit-testable in Node. With `node-web-audio-api` installed as a dev dependency, even the Web Audio effects run in Vitest.
 
-## State shape (sketch)
+## Web state shape (sketch, `web/state/`)
 ```ts
 interface AppState {
   image: { name: string; base: ImageData; proxy: ImageData | null; proxyScale: number } | null;
@@ -63,6 +77,6 @@ interface AppState {
 Changing `settings`, `selection` or `chain` triggers a debounced preview render. See [render-engine.md](render-engine.md).
 
 ## Why Web Audio?
-`OfflineAudioContext` gives us real, native-speed biquad filters, delays, waveshapers and convolution without a server. It renders faster than real time, so a few million samples take tens of milliseconds. The effect interface also allows plain JS effects, so anything Web Audio can't do (bitcrush, reverse) is a small function.
+`OfflineAudioContext` gives us real, native-speed biquad filters, delays, waveshapers and convolution without a server. It renders faster than real time, so a few million samples take tens of milliseconds. The effect interface also allows plain JS effects, so anything Web Audio can't do (bitcrush, reverse) is a small function. In Node, `node-web-audio-api` provides the same API, so the CLI reuses the same effect code instead of a second DSP implementation.
 
 Rejected alternatives: all hand-written DSP in a Web Worker (more code), and a Python/pedalboard backend (needs a server, slower previews).

@@ -1,6 +1,6 @@
 # Stream, layout and selection
 
-`src/stream/` decides **which bytes of the image, in which order** become the "audio". An echo looks very different depending on whether the next sample is the next channel, the next pixel to the right, or the pixel below.
+`src/core/stream/` decides **which bytes of the image, in which order** become the "audio". An echo looks very different depending on whether the next sample is the next channel, the next pixel to the right, or the pixel below.
 
 ## Core idea: the offset table
 For given settings and a selection, we build one `Uint32Array offsets`, where `offsets[i]` is the byte index in `ImageData.data` of stream sample `i`. Everything else is trivial:

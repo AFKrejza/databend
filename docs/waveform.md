@@ -8,7 +8,8 @@ A strip at the bottom of the screen shows the image's pixel stream as a waveform
 - The data is `render.before` and `render.after` from the store. When the preview uses the proxy, so does the waveform. The status bar says so.
 - The Y axis runs from −1 to 1, with a centre line and faint lines at ±0.5.
 
-## Drawing it fast (`src/waveform/peaks.ts`)
+## Drawing it fast (`src/core/waveform/peaks.ts`)
+`peaks.ts` is in `core/`, so the CLI's `--waveform out.png` uses it too and draws the same picture to a file.
 A stream can hold millions of samples but the panel is about 1500 px wide, so we draw **min/max peaks per screen column**, as Audacity does:
 ```ts
 computePeaks(samples: Float32Array, from: number, to: number, columns: number): { min: Float32Array; max: Float32Array }

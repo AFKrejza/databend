@@ -11,15 +11,20 @@ These cover the pure modules, which don't need a browser:
 | `tests/units.test.ts` | px/rows/hz → samples at scale 1 and on the proxy |
 | `tests/peaks.test.ts` | Peak cache matches a brute-force calculation, and the view-maths round trips work |
 
-Tests use plain `{ width, height, data: Uint8ClampedArray }` objects, not `ImageData`, so no DOM is needed.
+Tests use plain `RasterImage` objects (`{ width, height, data }`), not `ImageData`, so no DOM is needed.
 
-## Browser tests (later), `npm run test:browser`
-The Web Audio effects only run in a real browser. Use Vitest browser mode (or Playwright) with Chromium:
-- **Echo:** an impulse at sample 0 with time = 10 px (interleaved) gives a spike at sample 30 with height `mix`.
-- **Filter:** a low-pass on white noise reduces the high-frequency energy.
-- **Length:** each web-audio effect returns exactly `n` samples, including n = 1 and n = 10M.
-- **Determinism:** the same request twice gives byte-identical output (seeded reverb).
-- **Smoke:** load a test image, add an echo, export, and check that the exported PNG decodes with the same dimensions.
+## Web Audio effects and the engine, in Node
+Because the CLI needs `node-web-audio-api` anyway, the Web Audio effects run in plain Vitest too. Tests pass its `OfflineAudioContext` as the platform.
+
+| File | Checks |
+|---|---|
+| `tests/webaudioEffects.test.ts` | **Echo:** an impulse at sample 0 with time = 10 px (interleaved) gives a spike at sample 30 with height `mix`. **Filter:** a low-pass on white noise reduces the high-frequency energy. **Length:** every effect returns exactly `n` samples (n = 1, n = 10M). **Determinism:** the same request twice gives byte-identical output (seeded reverb). |
+| `tests/engine.test.ts` | An empty chain is lossless. A selection leaves outside pixels and alpha untouched. Mixed web-audio/JS chains are grouped correctly. |
+| `tests/recipe.test.ts` | Parse/serialize round-trip. Unknown effects error, out-of-range values clamp, defaults fill in. |
+| `tests/cli.test.ts` | Runs the real CLI on `gradient.png` in a temp folder. Checks that an output appears with the same size, exit codes for bad args, batch output naming, and `--dry-run`. |
+
+## Browser smoke test (later), `npm run test:browser`
+This only covers what Node can't: the GUI and Chrome's own Web Audio. Use Playwright with Chromium to load a test image, add an echo, export, and check that the exported PNG decodes with the same dimensions. Optionally, render one recipe in both the CLI and the browser and check that the results differ by at most a few byte values (see the caveat in [cli.md](cli.md)).
 
 ## Test images (`public/test/`)
 Generate these with a small script so they are reproducible:
@@ -38,3 +43,5 @@ Generate these with a small script so they are reproducible:
 7. Extreme settings (distortion drive 100, 5000 px reverb, wah Q 20) still export a valid PNG that opens in an image viewer.
 8. With `big.png`, moving a slider updates the preview in under about 200 ms. Export produces the full 4000×3000 image.
 9. Bake, then undo, restores the previous image and chain.
+10. Save a recipe in the GUI and run it with `databend gradient.png -r recipe.json`. The CLI output looks the same as the GUI export.
+11. "Copy CLI command" output, pasted into PowerShell, produces the same image.

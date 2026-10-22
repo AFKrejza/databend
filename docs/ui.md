@@ -1,11 +1,11 @@
 # UI
 
-React components live in `src/ui/`. They read and write the zustand store and never call the engine directly. The store triggers renders.
+React components live in `src/web/ui/`. They read and write the zustand store and never call the engine directly. The store triggers renders.
 
 ## Layout
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ Toolbar: Import · Export PNG · Undo · Redo · Bake · Before/After     │
+│ Toolbar: Import · Export PNG · Recipe ▾ · Undo · Redo · Bake · B/A   │
 ├───────────────┬──────────────────────────────────┬───────────────────┤
 │ Settings      │                                  │ Effect chain      │
 │  Encoding     │          Canvas view             │  [+ Add effect ▾] │
@@ -26,7 +26,7 @@ The side panels can be resized or collapsed. The waveform panel is about 160 px 
 | Component | Job |
 |---|---|
 | `App.tsx` | Grid layout, global keyboard shortcuts, drop zone |
-| `Toolbar.tsx` | Import (file input), Export, Undo/Redo, Bake, Before/After |
+| `Toolbar.tsx` | Import (file input), Export, Recipe menu (save, load, "Copy CLI command"), Undo/Redo, Bake, Before/After |
 | `SettingsPanel.tsx` | Encoding / layout / scan dropdowns, tool picker, selection readout and a clear button |
 | `CanvasView.tsx` | Draws the current output (or `base` while Before is held) to a canvas. Handles zoom and pan. |
 | `SelectionOverlay.tsx` | Transparent canvas on top that draws the rect, the range band and the hover crosshair, and handles pointer drags |
@@ -41,6 +41,8 @@ The side panels can be resized or collapsed. The waveform panel is about 160 px 
 - Use the toolbar button, drag and drop onto the window, or paste with Ctrl+V.
 - Supported formats are whatever the browser decodes: PNG, JPEG, WebP, GIF (first frame), BMP, AVIF.
 - Browsers can't open TIFF. If needed later, add the `utif` library. For now, the old GIMP → TIFF step isn't needed at all.
+
+**Recipes:** save the current settings, selection and chain as a `.json` recipe, or load one. See [cli.md](cli.md#recipes-shared-with-the-gui). "Copy CLI command" puts the equivalent `databend ... -f ...` command on the clipboard, so you can repeat a look from the terminal.
 
 **Canvas**
 - The image fits to the view on load. Use the mouse wheel to zoom and the pan tool (or hold Space) to pan.

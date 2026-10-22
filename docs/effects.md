@@ -1,6 +1,8 @@
 # Effects
 
-`src/effects/` has one file per effect plus `registry.ts`. The UI builds each effect's controls from its parameter list, so adding an effect means writing one file and adding one line to the registry.
+`src/core/effects/` has one file per effect plus `registry.ts`. The GUI builds each effect's controls from its parameter list, and the CLI uses the same list to parse `-f "echo time=30"` and to print `databend effects echo`. Adding an effect means writing one file and adding one line to the registry, and it then works in both front ends.
+
+**Compatibility rule:** web-audio effects must use only standard nodes that both Chrome and `node-web-audio-api` implement: Gain, Delay, BiquadFilter, WaveShaper, Convolver, Oscillator, DynamicsCompressor and AudioBufferSource. No `AudioWorklet`. If something needs custom per-sample code, make it a `js` effect.
 
 ## Interface (`types.ts`)
 ```ts
@@ -22,7 +24,7 @@ interface EffectContext {
 
 interface WebAudioEffect {
   kind: 'webaudio'; id: string; name: string; params: ParamSpec[];
-  build(ctx: OfflineAudioContext, input: AudioNode, p: Params, ec: EffectContext): AudioNode; // returns output node
+  build(ctx: BaseAudioContext, input: AudioNode, p: Params, ec: EffectContext): AudioNode; // returns output node; ctx comes from platform.createOfflineContext
 }
 interface JsEffect {
   kind: 'js'; id: string; name: string; params: ParamSpec[];

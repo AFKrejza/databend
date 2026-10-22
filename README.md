@@ -8,17 +8,26 @@ You import an image. The app turns its pixel bytes into audio samples (μ-law by
 
 The original workflow was GIMP → `.tif` → Audacity (raw, μ-law) → effects → raw export. It often produced files that wouldn't open, because the effects also hit the file header. This app only feeds pixel bytes through the effects and always writes a fresh PNG, so the output can't be corrupted.
 
+It works two ways, both running the same core code:
+- **Web GUI** with live preview, selections and the waveform view
+- **CLI** for batch processing and scripting. It also reads TIFF.
+
 ## Stack
-- Vite + React + TypeScript, browser-only (no server)
+- TypeScript throughout
+- GUI: Vite + React + zustand, runs locally in the browser (no server)
+- CLI: Node, with `sharp` for image files and `node-web-audio-api` for the audio effects
 - Web Audio API (`OfflineAudioContext`) for the DSP effects, plus small hand-written JS effects
-- zustand for state, Vitest for tests
+- Vitest for tests
 
 ## Running (once scaffolded)
 ```
 npm install
-npm run dev     # open the printed localhost URL
+npm run dev                                   # GUI: open the printed localhost URL
+npm run cli -- cat.jpg -f "echo time=30"      # CLI during development
+npm run build:cli; npm link                   # then just: databend cat.jpg -f "echo time=30"
 npm test
 ```
+A look designed in the GUI can be saved as a recipe and reused: `databend photos/*.png -r look.json -o bent/`.
 
 ## Docs
 | File | What it covers |
@@ -30,5 +39,6 @@ npm test
 | [docs/render-engine.md](docs/render-engine.md) | Render pipeline, live preview, proxy, bake, undo |
 | [docs/ui.md](docs/ui.md) | Screen layout, components, controls, shortcuts |
 | [docs/waveform.md](docs/waveform.md) | The bottom waveform panel |
+| [docs/cli.md](docs/cli.md) | CLI usage, flags, recipe format, Node adapters |
 | [docs/testing.md](docs/testing.md) | Unit tests, browser tests, manual checklist |
 | [docs/roadmap.md](docs/roadmap.md) | Milestones and progress checklist |

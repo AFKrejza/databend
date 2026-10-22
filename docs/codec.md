@@ -1,6 +1,6 @@
 # Codec: bytes ⇄ samples
 
-`src/codec/` turns the byte stream into floating-point audio samples in `[-1, 1)` and back. This is what Audacity's "Import Raw → encoding" setting did. The choice of codec changes the look a lot, because it decides which byte values count as "loud" and which as "quiet".
+`src/core/codec/` turns the byte stream into floating-point audio samples in `[-1, 1)` and back. This is what Audacity's "Import Raw → encoding" setting did. The choice of codec changes the look a lot, because it decides which byte values count as "loud" and which as "quiet".
 
 ```ts
 type Encoding = 'mulaw' | 'alaw' | 'u8' | 's8' | 's16be' | 's16le';
