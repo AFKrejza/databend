@@ -42,7 +42,8 @@ Alpha is never in the stream. Images with transparency keep their alpha as is.
 ```ts
 interface Selection {
   rect: { x: number; y: number; w: number; h: number } | null;  // full-res pixel coords
-  range: { start: number; end: number } | null;                  // sample indices into the base stream, end exclusive
+  range: { start: number; end: number } | null;                  // byte positions in the base stream, end exclusive
+                                                                 // (bytes, not samples, so 8↔16-bit doesn't move it)
 }
 ```
 Two steps:

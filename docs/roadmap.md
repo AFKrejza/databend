@@ -3,16 +3,17 @@
 Each milestone is small and leaves the app runnable. Tick items off as they are done.
 
 ## M1: Scaffold, import and export
-- [ ] Vite + React + TS project, ESLint, Vitest, zustand. Folders `src/core`, `src/web`, `src/cli`.
-- [ ] Spike: confirm that `node-web-audio-api` runs an `OfflineAudioContext` with Delay, Biquad, WaveShaper and Convolver on Windows. If it doesn't, fall back to JS versions of those effects for the CLI.
+- [x] Vite + React + TS project, Vitest, zustand. Folders `src/core`, `src/web`, `src/cli`.
+- [ ] ESLint (including a rule banning DOM/Node globals in `src/core`)
+- [x] Spike: confirm that `node-web-audio-api` runs an `OfflineAudioContext` with Delay, Biquad, WaveShaper and Convolver on Windows. If it doesn't, fall back to JS versions of those effects for the CLI.
 - [ ] Import an image (button and drag-drop) and draw it on the canvas
 - [ ] Export the canvas as PNG
 - [ ] Basic layout skeleton (toolbar, panels, status bar)
 
 ## M2: Codec and stream (pure TS + tests)
-- [ ] `codec/`: μ-law, A-law, u8, s8, s16be, s16le with round-trip tests
-- [ ] `stream/`: `buildOffsets` for layouts × scans, extract/insert, `pixelToSamples`, with tests
-- [ ] Settings panel dropdowns for encoding, layout and scan
+- [x] `codec/`: μ-law, A-law, u8, s8, s16be, s16le with round-trip tests
+- [x] `stream/`: `buildOffsets` for layouts × scans, extract/insert, `pixelToSamples`, with tests
+- [x] Settings panel dropdowns for encoding, layout and scan
 
 ## M3: Render engine with a first effect
 - [ ] `core/engine/render.ts` pipeline with `RasterImage` + `Platform` injection (empty chain = decode/encode round trip)

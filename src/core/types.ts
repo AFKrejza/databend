@@ -33,7 +33,10 @@ export interface Rect {
   h: number;
 }
 
-/** Sample indices into the base stream, `end` exclusive. */
+/**
+ * Byte positions in the base stream, `end` exclusive. Bytes rather than samples so that
+ * switching between 8- and 16-bit encodings doesn't move the selection.
+ */
 export interface SampleRange {
   start: number;
   end: number;
