@@ -23,15 +23,24 @@ Because the CLI needs `node-web-audio-api` anyway, the Web Audio effects run in 
 | `tests/recipe.test.ts` | Parse/serialize round-trip. Unknown effects error, out-of-range values clamp, defaults fill in. |
 | `tests/cli.test.ts` | Runs the real CLI on `gradient.png` in a temp folder. Checks that an output appears with the same size, exit codes for bad args, batch output naming, and `--dry-run`. |
 
-## Browser smoke test (later), `npm run test:browser`
-This only covers what Node can't: the GUI and Chrome's own Web Audio. Use Playwright with Chromium to load a test image, add an echo, export, and check that the exported PNG decodes with the same dimensions. Optionally, render one recipe in both the CLI and the browser and check that the results differ by at most a few byte values (see the caveat in [cli.md](cli.md)).
+## Browser smoke test, `npm run smoke`
+`scripts/browser-smoke.ts` covers what Node can't: the GUI and the browser's own Web Audio. It uses `playwright-core` with the browser already installed (Edge on Windows, Chrome elsewhere), so there's no browser download. Start `npm run dev`, then run `npm run smoke -- <dev url>`. It:
+1. imports `gradient.png` and adds echo (sets time to 30 px)
+2. drags a rect selection and adds wah
+3. range-selects on the waveform
+4. imports `big.png` and checks that the 1024×768 proxy preview later refines to full res
+5. exports and checks that the PNG is 4000×3000
+
+Each step saves a screenshot to `out/smoke-*.png`. The script fails on any page error, and on failure it prints them along with `out/smoke-failed.png`.
+
+Still to do: render one recipe in both the CLI and the browser and check that they differ by at most a few byte values (see the caveat in [cli.md](cli.md)).
 
 ## Test images (`public/test/`)
 Generate these with a small script so they are reproducible:
 - `gradient.png`: horizontal RGB gradient, which makes the codec mapping and echoes easy to read
 - `checker.png`: 8 px checkerboard, which shows delays and smearing direction
 - `photo.jpg`: any real photo, for checking the look
-- `big.png`: 4000×3000 image, for proxy and performance checks
+- `big.png`: 4000×3000 image, for proxy and performance checks. It's git-ignored, so run `npm run make-test-images` to create it.
 
 ## Manual checklist
 1. Import `gradient.png` with an empty chain and μ-law encoding. The output is identical to the input (the toggle shows no difference).

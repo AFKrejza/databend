@@ -3,7 +3,13 @@ import type { EffectInstance } from '../../core/effects/types';
 import { useStore } from '../state/store';
 import { ParamControl } from './ParamControl';
 
-export function EffectCard({ instance, index }: { instance: EffectInstance; index: number }) {
+interface Props {
+  instance: EffectInstance;
+  index: number;
+  last: boolean;
+}
+
+export function EffectCard({ instance, index, last }: Props) {
   const { updateParams, removeEffect, moveEffect, toggleBypass, commitHistory } = useStore();
   const error = useStore((s) => s.render.errors[instance.uid]);
   const effect = getEffect(instance.effectId);
@@ -12,9 +18,9 @@ export function EffectCard({ instance, index }: { instance: EffectInstance; inde
     <section className={`effect-card${instance.bypass ? ' bypassed' : ''}`}>
       <header>
         <span>{effect.name}</span>
-        <button title="Move up" onClick={() => moveEffect(instance.uid, index - 1)}>▲</button>
-        <button title="Move down" onClick={() => moveEffect(instance.uid, index + 1)}>▼</button>
-        <button title="Bypass" aria-pressed={instance.bypass} onClick={() => toggleBypass(instance.uid)}>⏻</button>
+        <button title="Move up" disabled={index === 0} onClick={() => moveEffect(instance.uid, index - 1)}>▲</button>
+        <button title="Move down" disabled={last} onClick={() => moveEffect(instance.uid, index + 1)}>▼</button>
+        <button title="Bypass" aria-pressed={!instance.bypass} onClick={() => toggleBypass(instance.uid)}>⏻</button>
         <button title="Remove" onClick={() => removeEffect(instance.uid)}>✕</button>
       </header>
       {effect.params.map((spec) => (

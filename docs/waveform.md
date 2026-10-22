@@ -5,7 +5,8 @@ A strip at the bottom of the screen shows the image's pixel stream as a waveform
 ## What it shows
 - **The base stream:** the whole image, or the rect selection if there is one. It uses the current encoding, layout and scan, so it is exactly what the effects receive.
 - **Before** is drawn in grey and **after** in the accent colour on top, with partial transparency. A toggle switches to **stacked** mode (before lane above, after lane below) for when overlay gets cluttered.
-- The data is `render.before` and `render.after` from the store. When the preview uses the proxy, so does the waveform. The status bar says so.
+- The data comes from `web/state/waveData.ts`. After each render it decodes the **whole base stream** from the source image and from the output image. So the panel shows unselected parts too, and "after" is exactly what ended up in the pixels, re-quantised by the codec. When the preview uses the proxy, so does the waveform, and the toolbar says "(preview)".
+- `WaveData` records the rect and settings it was computed with. Hover and readout mapping must use those, not the live store values, because the store can change before the next render arrives. Mixing the two caused a crash during development.
 - The Y axis runs from −1 to 1, with a centre line and faint lines at ±0.5.
 
 ## Drawing it fast (`src/core/waveform/peaks.ts`)

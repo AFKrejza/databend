@@ -1,6 +1,7 @@
 :root {
   --bg: #141416;
   --panel: #1d1d21;
+  --raised: #26262c;
   --border: #2c2c32;
   --text: #e6e6ea;
   --muted: #8a8a94;
@@ -9,15 +10,31 @@
   font-size: 14px;
   color: var(--text);
   background: var(--bg);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; }
+body { margin: 0; overflow: hidden; }
+h3 { margin: 4px 0 0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.muted { color: var(--muted); }
+.small { font-size: 12px; margin: 0; }
+
+button, select, input[type='number'] {
+  font: inherit;
+  color: var(--text);
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+button:hover:not(:disabled) { border-color: var(--muted); }
+button:disabled { opacity: 0.4; }
+button[aria-pressed='true'], button.active { border-color: var(--accent); color: var(--accent); }
 
 .app {
   display: grid;
-  grid-template-columns: 220px 1fr 300px;
-  grid-template-rows: auto 1fr 160px auto;
+  grid-template-columns: 230px minmax(0, 1fr) 300px;
+  grid-template-rows: auto minmax(0, 1fr) 190px auto;
   grid-template-areas:
     'toolbar toolbar toolbar'
     'settings canvas chain'
@@ -25,28 +42,57 @@ body { margin: 0; }
     'status status status';
   height: 100vh;
 }
+.app.dragging { outline: 2px dashed var(--accent); outline-offset: -4px; }
 
 .toolbar { grid-area: toolbar; display: flex; gap: 6px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+.toolbar .logo { margin-right: 10px; color: var(--accent); letter-spacing: 0.05em; }
+.toolbar .sep { width: 12px; }
+.menu { position: relative; }
+.menu summary { list-style: none; cursor: pointer; padding: 3px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--raised); }
+.menu summary::-webkit-details-marker { display: none; }
+.menu-items { position: absolute; top: calc(100% + 4px); left: 0; z-index: 10; display: flex; flex-direction: column; gap: 4px; padding: 6px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; min-width: 180px; }
+.menu-items button { text-align: left; }
+
 .settings { grid-area: settings; }
-.canvas-view { grid-area: canvas; display: grid; place-items: center; overflow: hidden; }
 .chain { grid-area: chain; overflow-y: auto; }
-.waveform { grid-area: wave; border-top: 1px solid var(--border); background: var(--panel); }
-.status { grid-area: status; display: flex; gap: 16px; padding: 4px 10px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); }
+.panel { background: var(--panel); padding: 10px; display: flex; flex-direction: column; gap: 10px; border-color: var(--border); }
+.settings { border-right: 1px solid var(--border); }
+.chain { border-left: 1px solid var(--border); }
+.panel > label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.tools { display: flex; gap: 4px; flex-wrap: wrap; }
 
-.panel { background: var(--panel); padding: 10px; display: flex; flex-direction: column; gap: 10px; }
-.panel label { display: flex; flex-direction: column; gap: 4px; }
-.tools { display: flex; gap: 4px; }
-.tools button[aria-pressed='true'] { outline: 1px solid var(--accent); }
+.canvas-view { grid-area: canvas; overflow: auto; position: relative; display: grid; place-items: center; padding: 16px; }
+.canvas-view .placeholder { font-size: 16px; }
+.canvas-stack { position: relative; box-shadow: 0 0 0 1px var(--border); }
+.canvas-stack canvas { display: block; }
+.overlay { position: absolute; inset: 0; touch-action: none; }
+.zoom-badge { position: sticky; bottom: 0; justify-self: end; align-self: end; }
+.zoom-badge button { font-size: 11px; padding: 1px 6px; }
 
-.canvas-stack { position: relative; }
-.overlay { position: absolute; inset: 0; pointer-events: auto; }
-
-.effect-card { border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-.effect-card header { display: flex; gap: 4px; align-items: center; }
+.effect-card { border: 1px solid var(--border); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 8px; background: var(--bg); }
+.effect-card header { display: flex; gap: 3px; align-items: center; }
 .effect-card header span { flex: 1; font-weight: 600; }
-.effect-card.bypassed { opacity: 0.5; }
-.param { font-size: 12px; }
+.effect-card header button { padding: 0 5px; font-size: 11px; }
+.effect-card.bypassed > :not(header) { opacity: 0.4; }
+.param { display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
+.param-label { display: flex; justify-content: space-between; align-items: center; color: var(--muted); }
+.param-value { display: flex; align-items: center; gap: 4px; }
+.param-value input { width: 70px; padding: 1px 4px; text-align: right; }
+.param-value .unit { font-size: 11px; min-width: 24px; }
+.param input[type='range'] { width: 100%; accent-color: var(--accent); }
+.param-bool { flex-direction: row; align-items: center; gap: 6px; }
 .error { color: #ff6b6b; margin: 0; font-size: 12px; }
 
-.waveform-toolbar { display: flex; gap: 4px; padding: 4px 8px; }
-.placeholder { color: var(--muted); }
+.waveform { grid-area: wave; border-top: 1px solid var(--border); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+.waveform > .placeholder { margin: auto; }
+.waveform-toolbar { display: flex; gap: 4px; padding: 4px 8px; align-items: center; font-size: 12px; }
+.waveform-toolbar button { font-size: 12px; padding: 1px 8px; }
+.waveform-toolbar .muted { margin-left: 8px; }
+.waveform-canvas { flex: 1; min-height: 0; position: relative; }
+.waveform-canvas canvas { position: absolute; inset: 0; cursor: text; touch-action: none; }
+
+.status { grid-area: status; display: flex; gap: 16px; align-items: center; padding: 4px 10px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); white-space: nowrap; overflow: hidden; }
+.status .spacer { flex: 1; }
+.status .notice { color: var(--accent); }
+.status .readout { font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+.status label { display: flex; gap: 4px; align-items: center; }

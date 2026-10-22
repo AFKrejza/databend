@@ -19,13 +19,15 @@ It works two ways, both running the same core code:
 - Web Audio API (`OfflineAudioContext`) for the DSP effects, plus small hand-written JS effects
 - Vitest for tests
 
-## Running (once scaffolded)
+## Running
 ```
 npm install
 npm run dev                                   # GUI: open the printed localhost URL
 npm run cli -- cat.jpg -f "echo time=30"      # CLI during development
 npm run build:cli; npm link                   # then just: databend cat.jpg -f "echo time=30"
-npm test
+npm test                                      # unit + CLI tests (Node)
+npm run make-test-images                      # test images in public/test/
+npm run smoke -- http://localhost:5173        # browser smoke test against a running dev server
 ```
 A look designed in the GUI can be saved as a recipe and reused: `databend photos/*.png -r look.json -o bent/`.
 

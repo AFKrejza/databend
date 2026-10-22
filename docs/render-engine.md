@@ -57,9 +57,13 @@ In the browser, `OfflineAudioContext` is only available on the main thread, but 
 ## Preview proxy (web only; the CLI always renders at full res)
 If `max(W, H) > 1024`, a downscaled **proxy** is created once at import or bake time. It uses a canvas `drawImage` with `imageSmoothingQuality = 'high'`, and `scale = 1024 / max(W, H)`.
 - Previews render on the proxy, and the canvas shows the proxy stretched to the display size.
-- Parameters use pixel units (see [effects.md](effects.md#units)), so the proxy looks like a lower-detail version of the final result.
-- A "Full-res preview" toggle in the status bar skips the proxy, which is slower but exact.
-- **Export** and **Bake** always run one render on the full-res base.
+- Parameters use pixel units (see [effects.md](effects.md#units)), so effect *sizes* match between proxy and full res.
+- **The proxy is only approximate.** Downscaling averages pixels, so the proxy feeds different byte values into the effects. μ-law and the filters amplify that, and the textures and colours can differ a lot. (This was found while testing a 4000×3000 image.) So:
+- **Refine when idle:** once nothing has changed for 500 ms (`REFINE_DELAY_MS` in `store.ts`), the app renders at full resolution and replaces the proxy preview. While that runs, the status bar says "refining…", and "full res" once it's done. Any change cancels the refine and goes back to fast proxy previews. A refine that finishes after a newer change is discarded.
+- A "Full-res preview" toggle in the status bar skips the proxy altogether, which is slower but always exact.
+- **Export** and **Bake** always use a full-res render. Export reuses the refined render when it's current.
+
+Known cost: a full-res refine of a 12 MP image with echo + wah takes a few seconds, and the codec and wave-data steps run on the main thread. If that causes noticeable UI stutter, the next step is moving extract/decode/encode and the JS effects into a Web Worker.
 
 ## Bake
 Bake turns the current chain into a permanent change:
@@ -72,15 +76,16 @@ This lets you layer effects with different settings, for example "echo the whole
 
 ## Undo / redo
 ```ts
-interface Snapshot { base: ImageData; chain: EffectInstance[]; settings; selection }
+interface Snapshot { base: RasterImage; proxy: RasterImage | null; chain: EffectInstance[]; settings; selection }
 ```
+- `store.committed` holds the state as of the last commit. Each commit pushes it onto `past` (unless nothing changed) and replaces it with the current state. Discrete actions commit straight away. Drags (sliders, selections) update live and commit on pointer up, so a whole drag is one undo step.
 - Snapshots share `base` by reference unless a bake happened, so chain and slider edits are cheap.
 - A slider drag is merged into one snapshot, taken on pointer up.
 - History is capped by memory: about 400 MB of distinct bases, after which the oldest are dropped.
 - Shortcuts are Ctrl+Z and Ctrl+Shift+Z / Ctrl+Y.
 
 ## Before / after
-Holding the **B** key (or the toolbar button) shows `base` instead of the output. Nothing is re-rendered.
+Holding the **B** key (or the toolbar button) shows the render's source image (the base, or its proxy) instead of the output. Nothing is re-rendered.
 
 ## Export
 1. Run a full-res render, or reuse the last one if it was full-res and nothing has changed.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  baseStreamLength, buildBaseOffsets, buildOffsets, extract, insert, offsetToPixel,
-  pixelSpanToRange, pixelToSamples, rowLength, scaleSelection,
+  baseRegion, baseStreamLength, buildBaseOffsets, buildOffsets, extract, insert, offsetToPixel,
+  pixelSpanToRange, pixelToSamples, rangeToBands, rowLength, scaleSelection,
 } from '../src/core/stream';
 import { LAYOUTS, SCANS, type RasterImage, type Rect, type Selection, type Settings } from '../src/core/types';
 
@@ -112,6 +112,32 @@ describe('stream', () => {
     expect(rowLength(W, H, null, s)).toBe(W * 3);
     expect(rowLength(W, H, null, { ...s, scan: 'columns' })).toBe(H * 3);
     expect(rowLength(W, H, { x: 0, y: 0, w: 2, h: 2 }, { ...s, layout: 'planar' })).toBe(2);
+  });
+
+  it('rangeToBands gives the wrapped band, matching the offset table', () => {
+    for (const s of ALL_SETTINGS) {
+      for (const rect of RECTS) {
+        const offsets = buildBaseOffsets(W, H, rect, s);
+        const range = { start: 5, end: Math.min(offsets.length, 40) };
+        const bands = rangeToBands(range, baseRegion(W, H, rect), s);
+        const inBands = (x: number, y: number) => bands.some((b) => x >= b.x && x < b.x + b.w && y >= b.y && y < b.y + b.h);
+        // Every selected byte's pixel is highlighted.
+        for (const o of offsets.subarray(range.start, range.end)) {
+          const p = offsetToPixel(o, W);
+          expect(inBands(p.x, p.y), `${s.layout}/${s.scan}`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('rangeToBands: rows scan, interleaved', () => {
+    const s: Settings = { encoding: 'mulaw', layout: 'interleaved', scan: 'rows' };
+    // Pixels 2..15 of a 7-wide image: (2..6, row 0), row 1 full, (0..1, row 2).
+    expect(rangeToBands({ start: 6, end: 48 }, { x: 0, y: 0, w: 7, h: 5 }, s)).toEqual([
+      { x: 2, y: 0, w: 5, h: 1 },
+      { x: 0, y: 1, w: 7, h: 1 },
+      { x: 0, y: 2, w: 2, h: 1 },
+    ]);
   });
 
   it('scaleSelection maps rect and range onto the proxy', () => {
