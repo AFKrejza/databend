@@ -16,17 +16,17 @@ Each milestone is small and leaves the app runnable. Tick items off as they are 
 - [x] Settings panel dropdowns for encoding, layout and scan
 
 ## M3: Render engine with a first effect
-- [ ] `core/engine/render.ts` pipeline with `RasterImage` + `Platform` injection (empty chain = decode/encode round trip)
+- [x] `core/engine/render.ts` pipeline with `RasterImage` + `Platform` injection (empty chain = decode/encode round trip)
 - [ ] Minimal CLI: `databend in.png -o out.png -e mulaw` (sharp I/O, empty chain). This proves the core works in Node from day one.
-- [ ] Gain/Invert JS effect
+- [x] Gain/Invert JS effect
 - [ ] Debounced live preview with generation-based cancellation, render time in the status bar
 
 ## M4: Web Audio effects
-- [ ] Effect registry and `ParamSpec` → auto-generated controls
-- [ ] Echo, then distortion, then wah, filter and reverb
-- [ ] Bitcrush, reverse, normalize
-- [ ] Unit conversion helpers (px / rows / hz)
-- [ ] Web Audio effect tests in Node via `node-web-audio-api`
+- [x] Effect registry and `ParamSpec` (controls are generated in `ParamControl.tsx`)
+- [x] Echo (JS), then distortion, then wah, filter and reverb
+- [x] Bitcrush, reverse, normalize
+- [x] Unit conversion helpers (px / rows / hz)
+- [x] Web Audio effect tests in Node via `node-web-audio-api`
 
 ## M5: Selection
 - [ ] Rect tool and overlay

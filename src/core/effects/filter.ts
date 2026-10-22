@@ -1,5 +1,5 @@
 import type { WebAudioEffect } from './types';
-import { todo } from '../todo';
+import { scaledHz } from './units';
 
 /** A single BiquadFilterNode. See docs/effects.md#filter-filterts-webaudio. */
 export const filter: WebAudioEffect = {
@@ -22,6 +22,12 @@ export const filter: WebAudioEffect = {
     { key: 'gain', label: 'Gain', type: 'number', min: -24, max: 24, step: 0.5, default: 0, unit: 'db' },
   ],
   build(ctx, input, p, ec) {
-    return todo('filter.build');
+    const node = ctx.createBiquadFilter();
+    node.type = p.type as BiquadFilterType;
+    node.frequency.value = scaledHz(Number(p.frequency), ec);
+    node.Q.value = Number(p.q);
+    node.gain.value = Number(p.gain);
+    input.connect(node);
+    return node;
   },
 };

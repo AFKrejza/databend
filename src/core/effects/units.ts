@@ -1,20 +1,19 @@
 // Image-unit → sample conversions. See docs/effects.md#units.
 import type { EffectContext } from './types';
-import { todo } from '../todo';
 
 /** round(px × samplesPerPixel × scale), at least 1. */
 export function pxToSamples(px: number, ec: EffectContext): number {
-  return todo('pxToSamples');
+  return Math.max(1, Math.round(px * ec.samplesPerPixel * ec.scale));
 }
 
-/** round(rows × rowLength). rowLength is already at proxy scale. */
+/** round(rows × rowLength), at least 1. rowLength is already at proxy scale. */
 export function rowsToSamples(rows: number, ec: EffectContext): number {
-  return todo('rowsToSamples');
+  return Math.max(1, Math.round(rows * ec.rowLength));
 }
 
-/** Hz are defined at full res: divide by scale on the proxy, clamp to Nyquist. */
+/** Hz are defined at full res: divide by scale on the proxy, clamp below Nyquist. */
 export function scaledHz(hz: number, ec: EffectContext): number {
-  return todo('scaledHz');
+  return Math.min(hz / ec.scale, ec.sampleRate * 0.499);
 }
 
 /** For params with a px/rows unit selector. */

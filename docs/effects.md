@@ -49,12 +49,10 @@ Rule: **every effect must look the same on the proxy as at full res**, apart fro
 ## v1 effects
 In each node diagram below, "dry" and "wet" are gain nodes summed into one output. `mix` sets wet = mix and dry = 1 − mix.
 
-### Echo / Delay (`echo.ts`, webaudio)
+### Echo / Delay (`echo.ts`, js)
 ```
-input ─┬──────────────── dry ───────────┐
-       └─► Delay ─┬─────── wet ─────────┴─► out
-            ▲     │
-            └─ feedback ◄┘
+wet[i] = x[i − d] + feedback · wet[i − d]          d = time in samples
+out    = (1 − mix) · x + mix · wet
 ```
 | Param | Range | Default |
 |---|---|---|
@@ -63,12 +61,10 @@ input ─┬──────────────── dry ─────
 | feedback | 0 – 0.95 | 0.4 |
 | mix | 0 – 1 | 0.5 |
 
-Notes:
-- `DelayNode` `maxDelayTime` is set to the needed time, up to 179 s (about 7.9M samples). Longer times are clamped and a warning shows on the card.
-- A delay inside a feedback loop is at least 128 samples (one render quantum). Below that, the effect uses a JS fallback.
+This is plain JS rather than a Web Audio `DelayNode`. Web Audio forces a delay inside a feedback loop to at least 128 samples (one render quantum), which would break short echoes (under about 43 px in interleaved mode). The loop is exact at any length and gives identical results in the GUI and CLI.
 
 ### Distortion (`distortion.ts`, webaudio)
-`input → pre-gain(drive) → WaveShaper(curve) → post-gain → mix`
+`input → WaveShaper(curve with drive baked in) → output gain → mix`
 
 | Param | Range | Default |
 |---|---|---|
@@ -78,11 +74,11 @@ Notes:
 | output | −24 – 0 dB | −3 |
 | mix | 0 – 1 | 1 |
 
-The curve is a 4096-point `Float32Array`, rebuilt only when `curve` changes:
-- tanh: `tanh(x)`
-- hard clip: `clamp(x)`
-- foldback: `sin(x·π/2)`
-- fuzz: an asymmetric curve with `sign(x)·(1−e^{−|x|})`
+The curve is a 4096-point `Float32Array` over x ∈ [−1, 1], cached by (curve, drive). Drive is baked into the curve instead of using a pre-gain node. A WaveShaper clamps its input to [−1, 1], so a pre-gain would just clip everything before it reached the curve.
+- tanh: `tanh(d·x) / tanh(d)`
+- hard clip: `clamp(d·x)`
+- foldback: `sin(d·x·π/2)`
+- fuzz: `(1 − e^{−d·x}) / (1 − e^{−d})` for x ≥ 0. The negative side uses half the drive, so it's asymmetric.
 
 ### Wah (`wah.ts`, webaudio)
 ```
@@ -132,7 +128,7 @@ The impulse is cached by (length in samples, decay, seed). Convolution is FFT-ba
 | bits | 1 – 16 | 4 |
 | hold | 1 – 64 px (sample-and-hold, i.e. downsample) | 1 |
 
-Each sample is quantised: `round(x · 2^(bits−1)) / 2^(bits−1)`. With hold, each value is repeated for `hold` pixels' worth of samples.
+Each sample is quantised: `round(x · 2^(bits−1)) / 2^(bits−1)`. Hold works **per channel**: every pixel in a block of `hold` pixels copies the channel values of the block's first pixel, giving horizontal pixelation that keeps the colours. `hold = 1` turns it off.
 
 ### Reverse (`reverse.ts`, js)
 Reverses the samples in place. No params. With rows scan, the region is mirrored and also shifted by row wrap. With a rect selection it looks like a 180° rotation.

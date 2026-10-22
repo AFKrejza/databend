@@ -1,7 +1,9 @@
 import type { JsEffect } from './types';
-import { todo } from '../todo';
 
-/** Quantise to `bits` and sample-and-hold for `hold` px. See docs/effects.md#bitcrush-bitcrushts-js. */
+/**
+ * Quantise to `bits`, and hold each channel's value for `hold` pixels (horizontal pixelation).
+ * hold = 1 means no hold. See docs/effects.md#bitcrush-bitcrushts-js.
+ */
 export const bitcrush: JsEffect = {
   kind: 'js',
   id: 'bitcrush',
@@ -11,6 +13,14 @@ export const bitcrush: JsEffect = {
     { key: 'hold', label: 'Hold', type: 'number', min: 1, max: 64, step: 1, default: 1, unit: 'px' },
   ],
   process(x, p, ec) {
-    return todo('bitcrush.process');
+    const levels = Math.pow(2, Math.round(Number(p.bits)) - 1);
+    // Hold per channel: sample i copies the same channel of the first pixel in its block.
+    const stride = Math.max(1, Math.round(ec.samplesPerPixel));
+    const block = Math.max(1, Math.round(Number(p.hold) * ec.scale)) * stride;
+    for (let i = 0; i < x.length; i++) {
+      const src = block > stride ? i - (i % block) + (i % stride) : i;
+      x[i] = Math.round(x[src] * levels) / levels;
+    }
+    return x;
   },
 };
