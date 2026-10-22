@@ -1,0 +1,11 @@
+{
+  // Core must run in both the browser and Node. The DOM lib is included only for the
+  // Web Audio type names (BaseAudioContext, AudioNode, ...); no Node types are loaded.
+  // Never use window/document/canvas or node:* modules in src/core.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "types": []
+  },
+  "include": ["src/core"]
+}

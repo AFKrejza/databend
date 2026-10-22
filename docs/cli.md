@@ -52,7 +52,7 @@ A recipe is a JSON file describing everything except the image itself. The GUI h
 {
   "version": 1,
   "settings": { "encoding": "mulaw", "layout": "interleaved", "scan": "rows" },
-  "selection": { "rect": null, "range": null },
+  "selection": { "rect": null, "range": { "start": 0.25, "end": 0.5, "unit": "fraction" } },
   "chain": [
     { "effect": "echo", "params": { "time": 30, "unit": "px", "feedback": 0.5, "mix": 0.5 } },
     { "effect": "wah", "params": { "period": 20, "q": 5 }, "bypass": false }
@@ -62,7 +62,7 @@ A recipe is a JSON file describing everything except the image itself. The GUI h
 ```
 Rules:
 - Params are validated against each effect's `ParamSpec`. Unknown effects or params are errors, values out of range are clamped with a warning, and missing params use defaults.
-- Selections in a recipe are applied as-is. A `rect` outside the image is clipped, and fractional `range` values scale to any image size, so fractions suit batch use.
+- Selections in a recipe are applied as-is. A `rect` outside the image is clipped. A `range` has `"unit": "fraction"` (0–1 of the base stream, which scales to any image size and suits batch use) or `"unit": "samples"`. The GUI saves fractions.
 - `version` lets the format change later without breaking old files.
 
 ## Implementation (`src/cli/`)
@@ -75,6 +75,6 @@ Rules:
 | `waveformPng.ts` | Draws peaks with `computePeaks` onto a raw RGBA buffer and saves it with `sharp` |
 
 - Run in development with `npm run cli -- cat.jpg -f "echo time=30"` (uses `tsx`).
-- `npm run build:cli` bundles to `dist/cli.js`. `package.json` has `"bin": { "databend": "dist/cli.js" }`, so after `npm link` the `databend` command works anywhere.
+- `npm run build:cli` bundles to `dist-cli/cli.js`, kept separate from Vite's `dist/`. `package.json` has `"bin": { "databend": "dist-cli/cli.js" }`, so after `npm link` the `databend` command works anywhere.
 - Exit codes: 0 means OK, 1 means bad arguments or recipe, 2 means an input couldn't be read or processed. Batch mode keeps going after a failed file and exits 2 at the end.
 - Progress for batches is one line per file, e.g. `cat.jpg → bent/cat-bent.png (1.2 MP, 184 ms)`.

@@ -74,4 +74,4 @@ The side panels can be resized or collapsed. The waveform panel is about 160 px 
 
 ## Look
 - Dark UI, so the image stands out, with one accent colour (also used for the "after" waveform).
-- Plain CSS modules, no UI library. The interface is small.
+- One plain stylesheet (`web/ui/app.css`) with CSS variables, and no UI library. The interface is small.

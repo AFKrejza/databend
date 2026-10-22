@@ -1,0 +1,40 @@
+{
+  "name": "databend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Databending: edit images as though their pixel bytes were audio.",
+  "type": "module",
+  "bin": {
+    "databend": "dist-cli/cli.js"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "cli": "tsx src/cli/main.ts",
+    "build:cli": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.core.json && tsc -p tsconfig.web.json && tsc -p tsconfig.cli.json",
+    "make-test-images": "tsx scripts/make-test-images.ts"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.3",
+    "node-web-audio-api": "^2.2.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sharp": "^0.35.5",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.1.0",
+    "vitest": "^3.2.0"
+  }
+}

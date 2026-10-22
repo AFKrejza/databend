@@ -24,7 +24,7 @@ Both functions take plain `{ width, height }` numbers, not `ImageData`, so they 
 |---|---|---|
 | `interleaved` (default) | R G B R G B … | Matches an uncompressed TIFF, as in Audacity. Short delays shift colours between channels. |
 | `planar` | all R, then all G, then all B | Each colour plane is its own "track". Long effects bleed from one plane into the next. |
-| `channel:r` / `channel:g` / `channel:b` | only that channel | The other channels are untouched, giving single-colour glitches. |
+| `r` / `g` / `b` | only that channel | The other channels are untouched, giving single-colour glitches. |
 
 Alpha is never in the stream. Images with transparency keep their alpha as is.
 
