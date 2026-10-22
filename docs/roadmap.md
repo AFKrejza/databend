@@ -17,7 +17,7 @@ Each milestone is small and leaves the app runnable. Tick items off as they are 
 
 ## M3: Render engine with a first effect
 - [x] `core/engine/render.ts` pipeline with `RasterImage` + `Platform` injection (empty chain = decode/encode round trip)
-- [ ] Minimal CLI: `databend in.png -o out.png -e mulaw` (sharp I/O, empty chain). This proves the core works in Node from day one.
+- [x] Minimal CLI: `databend in.png -o out.png -e mulaw` (sharp I/O, empty chain). This proves the core works in Node from day one.
 - [x] Gain/Invert JS effect
 - [ ] Debounced live preview with generation-based cancellation, render time in the status bar
 
@@ -44,13 +44,13 @@ Each milestone is small and leaves the app runnable. Tick items off as they are 
 - [ ] Undo/redo history with slider-drag coalescing
 
 ## M8: Full CLI and recipes
-- [ ] `core/recipe.ts`: parse, validate, serialize, with tests
-- [ ] CLI flags: `-f` effects, `--rect`/`--range`, `-r` recipe, `--seed`, `--dry-run`, `effects` subcommand
-- [ ] Batch mode with glob expansion, output folder and per-file error handling
-- [ ] `--waveform out.png`
+- [x] `core/recipe.ts`: parse, validate, serialize, with tests
+- [x] CLI flags: `-f` effects, `--rect`/`--range`, `-r` recipe, `--seed`, `--dry-run`, `effects` subcommand
+- [x] Batch mode with glob expansion, output folder and per-file error handling
+- [x] `--waveform out.png`
 - [ ] GUI: save/load recipe and "Copy CLI command"
-- [ ] `npm run build:cli` + `bin` entry, so `npm link` gives a global `databend`
-- [ ] CLI integration tests
+- [x] `npm run build:cli` + `bin` entry, so `npm link` gives a global `databend`
+- [x] CLI integration tests
 
 ## M9: Proxy and polish
 - [ ] Preview proxy for large images, full-res export, "Full-res preview" toggle

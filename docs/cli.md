@@ -27,8 +27,8 @@ databend effects <id>            # show one effect's params, ranges, defaults
 | `-l, --layout <layout>` | `interleaved`, `planar`, `r`, `g`, `b` | `interleaved` |
 | `-s, --scan <scan>` | `rows`, `columns` | `rows` |
 | `--rect <x,y,w,h>` | Rect selection in pixels | whole image |
-| `--range <start:end>` | Range within the base stream: sample indices, or fractions like `0.25:0.5` | all |
-| `-f, --fx "<id> k=v ..."` | Add an effect. Repeatable, runs in order. Unspecified params use defaults. | — |
+| `--range <start:end>` | Range within the base stream: byte positions (whole numbers), or fractions like `0.25:0.5` (≤ 1 with a decimal point) | all |
+| `-f, --fx "<id> k=v ..."` | Add an effect. Repeatable, runs in order. Unspecified params use defaults. Replaces a recipe's chain rather than appending to it. | — |
 | `-r, --recipe <file.json>` | Load settings, selection and chain from a recipe. Flags given on the command line override it. | — |
 | `--seed <n>` | Seed for random effects | 1 |
 | `--waveform <file.png>` | Also save a before/after waveform image of the stream | — |
