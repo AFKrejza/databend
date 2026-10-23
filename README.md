@@ -26,6 +26,10 @@ It works two ways, both running the same core code:
 npm install
 npm run dev                                   # GUI: open the printed localhost URL
 npm run cli -- cat.jpg -f "echo time=30"      # CLI during development
+```
+
+### Extras
+```
 npm run build:cli; npm link                   # then just: databend cat.jpg -f "echo time=30"
 npm test                                      # unit + CLI tests (Node)
 npm run make-test-images                      # test images in public/test/
@@ -41,6 +45,7 @@ No environment variables need to be set.
 
 Output will be in `example/bird-bent.png`, processed one is `example/bird-bent-ex.png`.
 
+To use the GUI you can run `npm run dev` and open it in a web browser.
 
 ## Docs
 | File | What it covers |
