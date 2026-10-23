@@ -1,0 +1,14 @@
+2026-10-23
+
+Example Notes
+
+The wah effect causes the curved lines across the screen, echo duplicates the image, gain changes contrast, high pass filter amplifies colors, low pass makes it more grayscale. You can select parts of the image either by selecting it with the mouse or by selecting the waveform. And reverse flips the selection upside down.
+
+Use bake to permanently apply effects to the image. It's especially useful when you want to apply an effect to only a small portion of it and then continue modifying the rest of the image. You can always Undo it.
+
+u8 encoding with the interleaved layout is the cleanest. Planar separates the colors more. 
+
+Exporting the instructions (recipe) lets you save the effects.
+
+docs/cli.md explains how to use it from the command line. Example usage:
+npm run cli -- <image_path> -f "echo time=30"

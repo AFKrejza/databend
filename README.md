@@ -6,6 +6,8 @@ Databending app for editing images as though they are audio.
 
 You import an image. The app turns its pixel bytes into audio samples (μ-law by default, like the old Audacity "Import Raw" trick) and runs audio effects on them, such as echo, wah, distortion and reverb. It writes the result straight back into the image, so you see changes live. A waveform panel at the bottom shows the "audio" you are bending.
 
+The `example` folder contains a worked example and some notes on getting a good result.
+
 The original workflow was GIMP → `.tif` → Audacity (raw, μ-law) → effects → raw export. It often produced files that wouldn't open, because the effects also hit the file header. This app only feeds pixel bytes through the effects and always writes a fresh PNG, so the output can't be corrupted.
 
 It works two ways, both running the same core code:
