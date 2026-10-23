@@ -33,6 +33,15 @@ npm run smoke -- http://localhost:5173        # browser smoke test against a run
 ```
 A look designed in the GUI can be saved as a recipe and reused: `databend photos/*.png -r look.json -o bent/`.
 
+## Environment Variables
+No environment variables need to be set.
+
+## Example Invocation:
+`npm run cli -- <path>\databend\example\bird.png -f "echo time=30"`
+
+Output will be in `example/bird-bent.png`, processed one is `example/bird-bent-ex.png`.
+
+
 ## Docs
 | File | What it covers |
 |---|---|
